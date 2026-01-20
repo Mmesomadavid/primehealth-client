@@ -8,7 +8,9 @@ import {
   InputOTPGroup,
   InputOTPSlot,
 } from "../../components/ui/input-otp";
+import { Separator } from "../../components/ui/separator";
 import { useState } from "react";
+import { Link } from "react-router-dom";
 
 const ResetPassword = () => {
   const [email, setEmail] = useState("");
@@ -21,8 +23,8 @@ const ResetPassword = () => {
   };
 
   return (
-    <main className="min-h-screen flex items-center justify-center bg-background px-4">
-      <div className="w-full max-w-5xl grid grid-cols-1 md:grid-cols-2 gap-10 p-8 md:p-12">
+    <main className="min-h-screen bg-background flex items-center justify-center px-4">
+      <div className="w-full max-w-5xl grid grid-cols-1 md:grid-cols-[1fr_auto_1fr] gap-12 items-center">
 
         {/* LEFT SECTION */}
         <div className="flex flex-col justify-center">
@@ -30,13 +32,13 @@ const ResetPassword = () => {
             Reset your password
           </h1>
 
-          <p className="text-muted-foreground mb-8">
+          <p className="text-muted-foreground mb-8 max-w-md">
             Enter your email address and we’ll send you a verification code to
             reset your password.
           </p>
 
-          {/* Email input */}
-          <div className="space-y-4">
+          <div className="space-y-4 max-w-md">
+            {/* Email input */}
             <div className="relative">
               <Mail
                 size={18}
@@ -51,7 +53,7 @@ const ResetPassword = () => {
               />
             </div>
 
-            {/* Request code button */}
+            {/* Request code */}
             <div className="flex justify-end">
               <Button
                 onClick={handleRequestCode}
@@ -61,14 +63,28 @@ const ResetPassword = () => {
                 <Send size={16} />
               </Button>
             </div>
+
+            {/* Remember login */}
+            <p className="text-sm text-muted-foreground">
+              I remember my details?{" "}
+              <Link
+                to="/login"
+                className="text-black font-medium hover:underline"
+              >
+                Try login
+              </Link>
+            </p>
           </div>
         </div>
+
+        {/* SEPARATOR */}
+        <Separator orientation="vertical" className="hidden md:block h-64" />
+        <Separator orientation="horizontal" className="md:hidden my-6" />
 
         {/* RIGHT SECTION */}
         <div
           className={`
             flex flex-col items-center justify-center
-            transition-all
             ${
               codeRequested
                 ? "block"
@@ -76,7 +92,7 @@ const ResetPassword = () => {
             }
           `}
         >
-          <h2 className="text-lg font-medium mb-4">
+          <h2 className="text-lg font-medium mb-6">
             Enter verification code
           </h2>
 
@@ -86,17 +102,17 @@ const ResetPassword = () => {
             value={otp}
             onChange={(value) => setOtp(value)}
           >
-            <InputOTPGroup className="gap-2">
+            <InputOTPGroup className="gap-2 sm:gap-3">
               {Array.from({ length: 6 }).map((_, index) => (
                 <InputOTPSlot
                   key={index}
                   index={index}
                   className="
-                    h-16 w-14
-                    text-lg
-                    rounded-xl
+                    h-12 w-10 sm:h-14 sm:w-12
+                    text-base sm:text-lg
+                    rounded-lg
                     border-2
-                    border-gray-400
+                    border-gray-500
                     focus:border-black
                     focus:ring-0
                   "
@@ -106,7 +122,7 @@ const ResetPassword = () => {
           </InputOTP>
 
           {/* Submit code */}
-          <Button className="mt-6 w-full max-w-xs h-12 bg-black hover:bg-black/90 rounded-full">
+          <Button className="mt-8 w-full max-w-xs h-12 bg-black hover:bg-black/90 rounded-full">
             Submit code
           </Button>
         </div>
