@@ -212,6 +212,12 @@ const buttonHoverVariants: Variants = {
               Create Account
             </Link>
           </p>
+          <p className="text-sm text-gray-600 mb-4">
+            Can't remeber Password? Don't Worry!{' '}
+            <Link to="/reset-password" className="text-blue-600 hover:underline font-medium">
+              Recover Account
+            </Link>
+          </p>
           <p className="text-xs text-gray-500">
             Signing up for a Stellar account means you agree to the{' '}
             <a href="#" className="text-blue-600 hover:underline">Privacy Policy</a> and{' '}
