@@ -13,6 +13,12 @@ import { useState } from "react";
 const ResetPassword = () => {
   const [email, setEmail] = useState("");
   const [otp, setOtp] = useState("");
+  const [codeRequested, setCodeRequested] = useState(false);
+
+  const handleRequestCode = () => {
+    if (!email) return;
+    setCodeRequested(true);
+  };
 
   return (
     <main className="min-h-screen flex items-center justify-center bg-background px-4">
@@ -45,18 +51,31 @@ const ResetPassword = () => {
               />
             </div>
 
-            {/* Request code button (right aligned) */}
+            {/* Request code button */}
             <div className="flex justify-end">
-              <Button className="h-11 px-6 bg-black hover:bg-black/90 rounded-full flex items-center">
+              <Button
+                onClick={handleRequestCode}
+                className="h-11 px-6 bg-black hover:bg-black/90 rounded-full flex items-center gap-2"
+              >
                 Request code
-                <Send/>
+                <Send size={16} />
               </Button>
             </div>
           </div>
         </div>
 
         {/* RIGHT SECTION */}
-        <div className="flex flex-col items-center justify-center">
+        <div
+          className={`
+            flex flex-col items-center justify-center
+            transition-all
+            ${
+              codeRequested
+                ? "block"
+                : "hidden md:flex"
+            }
+          `}
+        >
           <h2 className="text-lg font-medium mb-4">
             Enter verification code
           </h2>
@@ -72,17 +91,26 @@ const ResetPassword = () => {
                 <InputOTPSlot
                   key={index}
                   index={index}
-                  className="h-16 w-14 text-lg rounded-xl"
+                  className="
+                    h-16 w-14
+                    text-lg
+                    rounded-xl
+                    border-2
+                    border-gray-400
+                    focus:border-black
+                    focus:ring-0
+                  "
                 />
               ))}
             </InputOTPGroup>
           </InputOTP>
 
           {/* Submit code */}
-          <Button className="mt-6 w-full max-w-xs  h-12 bg-black hover:bg-blsack/90">
+          <Button className="mt-6 w-full max-w-xs h-12 bg-black hover:bg-black/90 rounded-full">
             Submit code
           </Button>
         </div>
+
       </div>
     </main>
   );
