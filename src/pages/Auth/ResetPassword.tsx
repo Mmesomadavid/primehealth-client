@@ -79,7 +79,7 @@ const ResetPassword = () => {
           </InputOTP>
 
           {/* Submit code */}
-          <Button className="mt-6 w-full max-w-xs  h-12 bg-blue-600 hover:bg-blue-600/90">
+          <Button className="mt-6 w-full max-w-xs  h-12 bg-black hover:bg-blsack/90">
             Submit code
           </Button>
         </div>
