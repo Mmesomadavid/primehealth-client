@@ -9,7 +9,6 @@ import { Link } from "react-router-dom";
 
 import { User, Mail, Lock, Eye, EyeOff } from "lucide-react";
 import GoogleIcon from "../../assets/icons/google-icon.png"; // <-- your google icon path
-import Logo from "../../components/Logo"; // <-- import your Logo component
 
 interface FormData {
   firstName: string;
@@ -80,16 +79,6 @@ const buttonHoverVariants: Variants = {
         transition={{ duration: 0.5 }}
         className="w-full"
       >
-
-        {/* Logo */}
-        <motion.div
-          variants={itemVariants}
-          initial="hidden"
-          animate="visible"
-          className="mb-6 flex justify-center"
-        >
-          <Logo variant="secondary"/>
-        </motion.div>
 
         {/* Form */}
         <motion.form
