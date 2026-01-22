@@ -1,11 +1,10 @@
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import {Routes, Route, Navigate } from "react-router-dom";
 import Login from "./pages/Auth/Login";
 import ResetPassword from "./pages/Auth/ResetPassword";
 import Register from "./pages/Auth/Register";
 
 function App() {
   return (
-    <BrowserRouter>
       <Routes>
 
         {/* Home route -> Login */}
@@ -19,7 +18,6 @@ function App() {
         <Route path="*" element={<Navigate to="/" replace />} />
 
       </Routes>
-    </BrowserRouter>
   );
 }
 
