@@ -6,13 +6,11 @@ import {
   registerRequest,
   loginRequest,
   verifyOtpRequest,
-  resendOtpRequest, // ✅ import resend otp
+  resendOtpRequest,
   getMeRequest,
 } from "../api/auth.api";
 
 import type { RegisterPayload } from "../api/auth.api";
-
-/* ---------- Types ---------- */
 
 export type AuthUser = {
   id: string;
@@ -31,15 +29,11 @@ type AuthContextType = {
   register: (data: RegisterPayload) => Promise<void>;
   login: (email: string, password: string) => Promise<void>;
   verifyOtp: (email: string, otp: string) => Promise<void>;
-  resendOtp: (email: string) => Promise<void>; // ✅ corrected signature
+  resendOtp: (email: string) => Promise<void>;
   logout: () => void;
 };
 
-/* ---------- Context ---------- */
-
 export const AuthContext = createContext<AuthContextType | undefined>(undefined);
-
-/* ---------- Provider ---------- */
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<AuthUser | null>(null);
@@ -47,7 +41,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   const isAuthenticated = !!user;
 
-  /* ---------- Init ---------- */
   useEffect(() => {
     const initAuth = async () => {
       try {
@@ -63,8 +56,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     initAuth();
   }, []);
 
-  /* ---------- Actions ---------- */
-
   const register = async (data: RegisterPayload) => {
     await registerRequest(data);
   };
@@ -72,7 +63,14 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const login = async (email: string, password: string) => {
     const res = await loginRequest({ email, password });
 
-    localStorage.setItem("accessToken", res.accessToken);
+    // ✔️ token is inside res (because auth.api returns res.data)
+    const token = res.accessToken;
+
+    if (!token) {
+      throw new Error("Login failed: accessToken missing");
+    }
+
+    localStorage.setItem("accessToken", token);
 
     const me = await getMeRequest();
     setUser(me.user);
@@ -82,7 +80,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     await verifyOtpRequest(email, otp);
   };
 
-  // ✅ Resend OTP
   const resendOtp = async (email: string) => {
     await resendOtpRequest(email);
   };
@@ -101,7 +98,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         register,
         login,
         verifyOtp,
-        resendOtp, // ✅ add to provider
+        resendOtp,
         logout,
       }}
     >

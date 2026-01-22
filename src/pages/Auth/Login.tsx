@@ -1,31 +1,34 @@
-'use client';
+"use client";
 
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 import { motion, type Variants } from "framer-motion";
 import { Button } from "../../components/ui/button";
 import { Input } from "../../components/ui/input";
 
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
-import { User, Mail, Lock, Eye, EyeOff } from "lucide-react";
-import GoogleIcon from "../../assets/icons/google-icon.png"; // <-- your google icon path
+import { Mail, Lock, Eye, EyeOff } from "lucide-react";
+import GoogleIcon from "../../assets/icons/google-icon.png";
+
+import { AuthContext } from "../../context/AuthContext";
 
 interface FormData {
-  firstName: string;
-  lastName: string;
   email: string;
   password: string;
 }
 
 const Login = () => {
+  const navigate = useNavigate();
+  const auth = useContext(AuthContext);
+
   const [formData, setFormData] = useState<FormData>({
-    firstName: '',
-    lastName: '',
-    email: '',
-    password: '',
+    email: "",
+    password: "",
   });
 
   const [showPassword, setShowPassword] = useState(false);
+
+  if (!auth) return null;
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -35,52 +38,61 @@ const Login = () => {
     }));
   };
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    console.log('Form submitted:', formData);
+
+    try {
+      await auth.login(formData.email, formData.password);
+
+      // redirect based on role
+      if (auth.user?.role === "DOCTOR") {
+        navigate("/dashboard/doctor");
+      } else {
+        navigate("/dashboard/org");
+      }
+    } catch (error: any) {
+      console.error("Login failed:", error.message);
+    }
   };
-  
+
   const containerVariants: Variants = {
     hidden: { opacity: 0 },
     visible: {
-        opacity: 1,
-        transition: {
-            staggerChildren: 0.1,
-            delayChildren: 0.2,
-        },
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.1,
+        delayChildren: 0.2,
+      },
     },
-};
+  };
 
-const itemVariants: Variants = {
+  const itemVariants: Variants = {
     hidden: { opacity: 0, y: 20 },
     visible: {
-    opacity: 1,
-    y: 0,
-    transition: {
-      duration: 0.5,
-      ease: "easeOut",
+      opacity: 1,
+      y: 0,
+      transition: {
+        duration: 0.5,
+        ease: "easeOut",
+      },
     },
-  },
-};
+  };
 
-const buttonHoverVariants: Variants = {
-  hover: {
-    scale: 1.02,
-    boxShadow: "0 10px 25px rgba(0, 0, 0, 0.1)",
-  },
-};
+  const buttonHoverVariants: Variants = {
+    hover: {
+      scale: 1.02,
+      boxShadow: "0 10px 25px rgba(0, 0, 0, 0.1)",
+    },
+  };
 
   return (
     <main className="min-h-screen bg-background flex items-center justify-center p-4">
-
       <motion.div
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: 0.5 }}
         className="w-full"
       >
-
-        {/* Form */}
         <motion.form
           onSubmit={handleSubmit}
           variants={containerVariants}
@@ -88,8 +100,6 @@ const buttonHoverVariants: Variants = {
           animate="visible"
           className="w-full max-w-md mx-auto space-y-6"
         >
-
-          {/* Google Button */}
           <motion.div variants={itemVariants}>
             <Button
               type="button"
@@ -101,7 +111,6 @@ const buttonHoverVariants: Variants = {
             </Button>
           </motion.div>
 
-          {/* Divider */}
           <motion.div variants={itemVariants} className="relative">
             <div className="absolute inset-0 flex items-center">
               <div className="w-full border-t border-gray-300"></div>
@@ -111,46 +120,11 @@ const buttonHoverVariants: Variants = {
             </div>
           </motion.div>
 
-          {/* Name Fields */}
-          <div className="grid grid-cols-2 gap-4">
-            <motion.div variants={itemVariants} className="relative">
-              <label className="block text-sm font-medium text-gray-700 mb-2">First name</label>
-              <div className="relative">
-                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
-                  <User size={18} />
-                </span>
-                <Input
-                  type="text"
-                  name="firstName"
-                  value={formData.firstName}
-                  onChange={handleInputChange}
-                  placeholder="John"
-                  className="h-12 rounded-xl pl-10"
-                />
-              </div>
-            </motion.div>
-
-            <motion.div variants={itemVariants} className="relative">
-              <label className="block text-sm font-medium text-gray-700 mb-2">Last name</label>
-              <div className="relative">
-                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
-                  <User size={18} />
-                </span>
-                <Input
-                  type="text"
-                  name="lastName"
-                  value={formData.lastName}
-                  onChange={handleInputChange}
-                  placeholder="Doe"
-                  className="h-12 rounded-xl pl-10"
-                />
-              </div>
-            </motion.div>
-          </div>
-
           {/* Email */}
           <motion.div variants={itemVariants} className="relative">
-            <label className="block text-sm font-medium text-gray-700 mb-2">Email</label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Email
+            </label>
             <div className="relative">
               <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
                 <Mail size={18} />
@@ -168,7 +142,9 @@ const buttonHoverVariants: Variants = {
 
           {/* Password */}
           <motion.div variants={itemVariants} className="relative">
-            <label className="block text-sm font-medium text-gray-700 mb-2">Password</label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Password
+            </label>
             <div className="relative">
               <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
                 <Lock size={18} />
@@ -205,23 +181,34 @@ const buttonHoverVariants: Variants = {
         </motion.form>
 
         {/* Footer */}
-        <motion.div variants={itemVariants} initial="hidden" animate="visible" className="mt-8 text-center">
+        <motion.div
+          variants={itemVariants}
+          initial="hidden"
+          animate="visible"
+          className="mt-8 text-center"
+        >
           <p className="text-sm text-gray-600 mb-4">
-            Do you have an account?{' '}
+            Do you have an account?{" "}
             <Link to="/register" className="text-blue-600 hover:underline font-medium">
               Create Account
             </Link>
           </p>
           <p className="text-sm text-gray-600 mb-4">
-            Can't remeber Password? Don't Worry!{' '}
+            Can't remember Password? Don't Worry!{" "}
             <Link to="/reset-password" className="text-blue-600 hover:underline font-medium">
               Recover Account
             </Link>
           </p>
           <p className="text-xs text-gray-500">
-            Signing up for a Stellar account means you agree to the{' '}
-            <a href="#" className="text-blue-600 hover:underline">Privacy Policy</a> and{' '}
-            <a href="#" className="text-blue-600 hover:underline">Terms of Service</a>.
+            Signing up for a Stellar account means you agree to the{" "}
+            <a href="#" className="text-blue-600 hover:underline">
+              Privacy Policy
+            </a>{" "}
+            and{" "}
+            <a href="#" className="text-blue-600 hover:underline">
+              Terms of Service
+            </a>
+            .
           </p>
         </motion.div>
       </motion.div>
