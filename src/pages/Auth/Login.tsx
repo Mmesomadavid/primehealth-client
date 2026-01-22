@@ -42,10 +42,13 @@ const Login = () => {
     e.preventDefault();
 
     try {
-      await auth.login(formData.email, formData.password);
+      // login returns the user directly so we can use it for navigation
+      const loggedInUser = await auth.login(formData.email, formData.password);
 
-      // redirect based on role
-      if (auth.user?.role === "DOCTOR") {
+      console.log("[v0] Login successful, user:", loggedInUser);
+
+      // redirect based on role using the returned user (not auth.user which may not be updated yet)
+      if (loggedInUser?.role === "DOCTOR") {
         navigate("/dashboard/doctor");
       } else {
         navigate("/dashboard/org");
@@ -106,7 +109,7 @@ const Login = () => {
               variant="outline"
               className="w-full h-12 border border-gray-300 hover:bg-gray-50 transition-colors bg-transparent flex items-center justify-center gap-3"
             >
-              <img src={GoogleIcon} alt="Google" className="w-5 h-5" />
+              <img src={GoogleIcon || "/placeholder.svg"} alt="Google" className="w-5 h-5" />
               Sign in with Google
             </Button>
           </motion.div>

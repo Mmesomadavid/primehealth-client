@@ -27,7 +27,7 @@ type AuthContextType = {
   isLoading: boolean;
 
   register: (data: RegisterPayload) => Promise<void>;
-  login: (email: string, password: string) => Promise<void>;
+  login: (email: string, password: string) => Promise<AuthUser>;
   verifyOtp: (email: string, otp: string) => Promise<void>;
   resendOtp: (email: string) => Promise<void>;
   logout: () => void;
@@ -43,10 +43,20 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   useEffect(() => {
     const initAuth = async () => {
+      const token = localStorage.getItem("accessToken");
+
+      // Skip API call if no token exists - avoids 401 error on initial load
+      if (!token) {
+        setIsLoading(false);
+        return;
+      }
+
       try {
         const data = await getMeRequest();
         setUser(data.user);
       } catch {
+        // Token is invalid or expired - clear it
+        localStorage.removeItem("accessToken");
         setUser(null);
       } finally {
         setIsLoading(false);
@@ -60,10 +70,11 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     await registerRequest(data);
   };
 
-  const login = async (email: string, password: string) => {
+  const login = async (email: string, password: string): Promise<AuthUser> => {
     const res = await loginRequest({ email, password });
 
-    // ✔️ token is inside res (because auth.api returns res.data)
+    console.log("[v0] Login response:", res);
+
     const token = res.accessToken;
 
     if (!token) {
@@ -72,8 +83,20 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
     localStorage.setItem("accessToken", token);
 
+    // Use user data from login response if available (avoids extra /auth/me call)
+    // Most backends return user data along with the token
+    if (res.user) {
+      console.log("[v0] Using user from login response:", res.user);
+      setUser(res.user);
+      return res.user;
+    }
+
+    // Fallback: fetch user data separately if not included in login response
+    console.log("[v0] Token saved, fetching user data from /auth/me...");
     const me = await getMeRequest();
+    console.log("[v0] getMeRequest response:", me);
     setUser(me.user);
+    return me.user;
   };
 
   const verifyOtp = async (email: string, otp: string) => {
