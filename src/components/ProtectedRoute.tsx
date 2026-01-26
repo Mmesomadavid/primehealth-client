@@ -11,17 +11,16 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ role }) => {
 
   if (!auth) return null;
 
-  // If user not logged in
-  if (!auth.isAuthenticated) {
+  if (auth.isLoading) return null;
+
+  if (!auth.isAuthenticated || !auth.user) {
     return <Navigate to="/" replace />;
   }
 
-  // If user role does not match
-  if (auth.user?.role !== role) {
+  if (auth.user.role !== role) {
     return <Navigate to="/" replace />;
   }
 
-  // If ok, render children routes
   return <Outlet />;
 };
 

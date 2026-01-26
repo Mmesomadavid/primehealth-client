@@ -1,15 +1,12 @@
 "use client";
 
-import React, { useState, useContext } from "react";
+import React, { useState, useContext, useEffect } from "react";
 import { motion, type Variants } from "framer-motion";
 import { Button } from "../../components/ui/button";
 import { Input } from "../../components/ui/input";
-
 import { Link, useNavigate } from "react-router-dom";
-
 import { Mail, Lock, Eye, EyeOff } from "lucide-react";
 import GoogleIcon from "../../assets/icons/google-icon.png";
-
 import { AuthContext } from "../../context/AuthContext";
 
 interface FormData {
@@ -27,8 +24,21 @@ const Login = () => {
   });
 
   const [showPassword, setShowPassword] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   if (!auth) return null;
+
+  // Redirect already authenticated users
+  useEffect(() => {
+    if (auth.isAuthenticated && auth.user) {
+      if (auth.user.role === "OWNER") {
+        navigate(`/org/${auth.user.organizationId}`, { replace: true });
+      } else {
+        navigate(`/doctor/${auth.user.id}`, { replace: true });
+      }
+    }
+  }, [auth.isAuthenticated, auth.user, navigate]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -40,21 +50,21 @@ const Login = () => {
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    setError(null);
+    setIsSubmitting(true);
 
     try {
-      // login returns the user directly so we can use it for navigation
       const loggedInUser = await auth.login(formData.email, formData.password);
 
-      console.log("[v0] Login successful, user:", loggedInUser);
-
-      // redirect based on role using the returned user (not auth.user which may not be updated yet)
-      if (loggedInUser?.role === "DOCTOR") {
-        navigate("/dashboard/doctor");
+      if (loggedInUser.role === "DOCTOR") {
+        navigate(`/doctor/${loggedInUser.id}`, { replace: true });
       } else {
-        navigate("/dashboard/org");
+        navigate(`/org/${loggedInUser.organizationId}`, { replace: true });
       }
     } catch (error: any) {
-      console.error("Login failed:", error.message);
+      setError(error.message || "Login failed");
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -103,6 +113,13 @@ const Login = () => {
           animate="visible"
           className="w-full max-w-md mx-auto space-y-6"
         >
+          {error && (
+            <div className="text-red-600 text-sm bg-red-100 p-3 rounded-md">
+              {error}
+            </div>
+          )}
+
+          {/* Google Button */}
           <motion.div variants={itemVariants}>
             <Button
               type="button"
@@ -112,15 +129,6 @@ const Login = () => {
               <img src={GoogleIcon || "/placeholder.svg"} alt="Google" className="w-5 h-5" />
               Sign in with Google
             </Button>
-          </motion.div>
-
-          <motion.div variants={itemVariants} className="relative">
-            <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-gray-300"></div>
-            </div>
-            <div className="relative flex justify-center text-sm">
-              <span className="px-2 bg-white text-gray-500">or</span>
-            </div>
           </motion.div>
 
           {/* Email */}
@@ -176,9 +184,10 @@ const Login = () => {
               whileHover="hover"
               variants={buttonHoverVariants}
               type="submit"
+              disabled={isSubmitting}
               className="w-full h-12 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-md transition-colors"
             >
-              Sign in
+              {isSubmitting ? "Signing in..." : "Sign in"}
             </motion.button>
           </motion.div>
         </motion.form>
