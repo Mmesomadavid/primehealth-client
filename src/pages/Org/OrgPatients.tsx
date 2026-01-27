@@ -24,6 +24,7 @@ import {
 import { Input } from "../../components/ui/input";
 import { Badge } from "../../components/ui/badge";
 import { ChevronLeft, ChevronRight, Plus, SlidersHorizontal } from "lucide-react";
+import OrgAddPatients from "../../components/organization/OrgAddPatients";
 
 // -----------------------------
 // Types
@@ -129,6 +130,7 @@ const OrgPatients = () => {
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [rowSelection, setRowSelection] = React.useState<RowSelectionState>({});
   const [globalFilter, setGlobalFilter] = React.useState("");
+  const [openAddPatient, setOpenAddPatient] = React.useState(false);
 
   const table = useReactTable({
     data,
@@ -155,10 +157,18 @@ const OrgPatients = () => {
             Manage patients across your organization
           </p>
         </div>
-        <Button className="gap-2 bg-blue-600 hover:bg-blue-600/90">
+        <Button
+          className="gap-2 bg-blue-600 hover:bg-blue-600/90"
+          onClick={() => setOpenAddPatient(true)}
+        >
           <Plus className="h-4 w-4" /> Add Patient
         </Button>
       </div>
+
+      <OrgAddPatients
+        open={openAddPatient}
+        onOpenChange={setOpenAddPatient}
+      />
 
       {/* Tabs */}
       <Tabs defaultValue="active" className="space-y-4">
@@ -260,5 +270,7 @@ const OrgPatients = () => {
     </div>
   );
 };
+
+
 
 export default OrgPatients;
