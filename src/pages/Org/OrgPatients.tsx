@@ -24,7 +24,7 @@ import {
 import { Input } from "../../components/ui/input";
 import { Badge } from "../../components/ui/badge";
 import { ChevronLeft, ChevronRight, Plus, SlidersHorizontal } from "lucide-react";
-import OrgAddPatients from "../../components/organization/OrgAddPatients";
+import { OrgAddPatients } from "../../components/organization/OrgAddPatients";
 
 // -----------------------------
 // Types
